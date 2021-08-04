@@ -16,6 +16,8 @@
 # Location of LetsEncrypt binary we use.  Leave unset if you want to let it find automatically
 #LEBINARY="/usr/src/letsencrypt/certbot-auto"
 
+ETCLE="/usr/local/etc/letsencrypt"
+
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 function usage() {
@@ -109,7 +111,7 @@ if [[ ${onlyinsert} != "yes" ]]; then
               --agree-tos --standalone --preferred-challenges http ${LEOPTIONS}
 fi
 
-if [[ ${onlyinsert} != "yes" ]] && md5sum -c "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5" &>/dev/null; then
+if [[ ${onlyinsert} != "yes" ]] && md5sum -c "${ETCLE}/live/${MAINDOMAIN}/cert.pem.md5" &>/dev/null; then
   echo "Cert has not changed, not updating controller."
   exit 0
 else
@@ -142,12 +144,12 @@ Ob8VZRzI9neWagqNdwvYkQsEjgfbKbYK7p2CNTUQ
 -----END CERTIFICATE-----
 _EOF
 
-  md5sum "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem" > "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5"
+  md5sum "${ETCLE}/live/${MAINDOMAIN}/cert.pem" > "${ETCLE}/live/${MAINDOMAIN}/cert.pem.md5"
   echo "Using openssl to prepare certificate..."
-  cat "/etc/letsencrypt/live/${MAINDOMAIN}/chain.pem" >> "${CATEMPFILE}"
+  cat "${ETCLE}/live/${MAINDOMAIN}/chain.pem" >> "${CATEMPFILE}"
   openssl pkcs12 -export  -passout pass:aircontrolenterprise \
-          -in "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem" \
-          -inkey "/etc/letsencrypt/live/${MAINDOMAIN}/privkey.pem" \
+          -in "${ETCLE}/live/${MAINDOMAIN}/cert.pem" \
+          -inkey "${ETCLE}/live/${MAINDOMAIN}/privkey.pem" \
           -out "${TEMPFILE}" -name unifi \
           -CAfile "${CATEMPFILE}" -caname root
 
